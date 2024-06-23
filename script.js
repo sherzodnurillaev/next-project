@@ -1,67 +1,75 @@
-let tbody = document.querySelector('tbody')
-let modal = document.querySelector('dialog')
-let form = document.forms[0]
-let ModalForm = document.forms[1]
-let btn = document.querySelector('dialog button')
+import { arr } from "./db.js";
 
-let ob = {}
+let form = document.forms[0];
+let modal = document.querySelector('dialog');
+let ModalForm = document.forms[1];
 
-for (let i = 0; i < 4; i++) {
-    inpValue()
-}
+reloadUsers(arr);
 
 form.onsubmit = (e) => {
-    e.preventDefault()
-    let inp = new FormData(form)
-    inp.forEach((item, key) => {
-        ob[key] = item
-    })
-    inpValue()
-}
+    e.preventDefault();
 
-function inpValue() {
-    let tr = document.createElement('tr')
-    let id = document.createElement('td')
-    let name = document.createElement('td')
-    let year = document.createElement('td')
-    let del = document.createElement('img')
-    let des = document.createElement('img')
-    
-    id.setAttribute('name', 'id')
-    name.setAttribute('name', 'name')
-    year.setAttribute('name', 'year')
-    des.setAttribute('src', './images/description.png')
-    del.setAttribute('src', './images/delete.png')
-    del.classList.add('block')
-    des.classList.add('block')
-    name.innerHTML = ob.name
-    year.innerHTML = ob.year
-    
-    tbody.append(tr)
-    tr.append(id, name, year, des, del)
-
-    del.onclick = () => {
-        tr.remove();
+    let obj = {
+        id: arr.length + 1
     };
-    des.onclick = () => {
-        modal.show()
-    }
 
-    ModalForm.onsubmit = (e) => {
-        e.preventDefault()
-        let mo = {}
+    let formData = new FormData(form);
+    formData.forEach((value, key) => {
+        obj[key] = value;
+    });
 
-        let modalInp = new FormData(ModalForm)
+    arr.push(obj);
+    reloadUsers(arr);
+};
 
-        modalInp.forEach((elem, key) => {
-            mo[key] = elem
-            name.innerHTML = mo.name
-            year.innerHTML = mo.year
-        })
-    }
+function reloadUsers(arr) {
+    let tbody = document.querySelector('tbody');
+    tbody.innerHTML = '';
 
-    btn.onclick = () => {
-        modal.close()
-    }
+    arr.forEach((item, index) => {
+        let tr = document.createElement('tr');
+        let id = document.createElement('td');
+        let name = document.createElement('td');
+        let year = document.createElement('td');
+        let del = document.createElement('img');
+        let des = document.createElement('img');
 
+        id.textContent = index + 1;
+        name.textContent = item.name;
+        year.textContent = item.year;
+        del.src = './images/delete.png';
+        des.src = './images/description.png';
+        del.classList.add('block');
+        des.classList.add('block');
+
+        tr.append(id);
+        tr.append(name);
+        tr.append(year);
+        tr.append(des);
+        tr.append(del);
+
+        tbody.append(tr);
+
+        del.onclick = () => {
+            arr.splice(index, 1);
+            reloadUsers(arr);
+        };
+
+        des.onclick = () => {
+
+            ModalForm.name.value = item.name;
+            ModalForm.year.value = item.year;
+            modal.show();
+
+            ModalForm.onsubmit = (e) => {
+                e.preventDefault();
+
+                item.name = ModalForm.name.value;
+                item.year = ModalForm.year.value;
+
+                modal.close();
+                reloadUsers(arr);
+            };
+        };
+    });
 }
