@@ -56,6 +56,9 @@ function reloadUsers(arr) {
         };
 
         des.onclick = () => {
+
+            ModalForm.name.value = item.name;
+            ModalForm.year.value = item.year;
             modal.show();
 
             ModalForm.onsubmit = (e) => {
